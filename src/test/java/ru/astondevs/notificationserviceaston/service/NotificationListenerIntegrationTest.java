@@ -3,7 +3,6 @@ package ru.astondevs.notificationserviceaston.service;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,7 +12,7 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.astondevs.notificationserviceaston.dto.UserDto;
+import ru.astondevs.notificationserviceaston.dto.UserEventDto;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
@@ -37,7 +36,7 @@ class NotificationListenerIntegrationTest {
     @MockBean
     private MailService mailService;
 
-    private KafkaTemplate<String, UserDto> kafkaTemplate;
+    private KafkaTemplate<String, UserEventDto> kafkaTemplate;
 
     @BeforeEach
     void setup() {
@@ -46,7 +45,7 @@ class NotificationListenerIntegrationTest {
         producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        DefaultKafkaProducerFactory<String, UserDto> pf =
+        DefaultKafkaProducerFactory<String, UserEventDto> pf =
                 new DefaultKafkaProducerFactory<>(producerProps);
         kafkaTemplate = new KafkaTemplate<>(pf);
 
@@ -61,7 +60,7 @@ class NotificationListenerIntegrationTest {
 
     @Test
     void shouldSendMailWhenUserCreatedEventReceived() throws Exception {
-        UserDto user = new UserDto();
+        UserEventDto user = new UserEventDto();
         user.setEmail("john@example.com");
         user.setName("John");
 
@@ -79,7 +78,7 @@ class NotificationListenerIntegrationTest {
 
     @Test
     void shouldSendMailWhenUserDeletedEventReceived() throws Exception {
-        UserDto user = new UserDto();
+        UserEventDto user = new UserEventDto();
         user.setEmail("jane@example.com");
         user.setName("Jane");
 

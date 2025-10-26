@@ -11,19 +11,23 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserDto {
+public class UserEventDto {
+    private Long id;
     private String name;
     private String email;
     private int age;
     private Long role_id;
+    private String eventType;
 
     @Override
     public String toString() {
-        return "UserDto{" +
-                "name='" + name + '\'' +
+        return "UserEventDto{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", age=" + age +
                 ", role_id=" + role_id +
+                ", eventType='" + eventType + '\'' +
                 '}';
     }
 }

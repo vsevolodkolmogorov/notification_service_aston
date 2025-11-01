@@ -1,21 +1,5 @@
-server:
-  port: 8082
 spring:
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: notification-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: '*'
-        spring.json.type.mapping: "ru.astondevs.dto.UserEventDto:ru.astondevs.notificationserviceaston.dto.UserEventDto"
-  mail:
-    host: localhost
-    port: 1025
-    username: "test@gmail.com"
-    password: ""
-    properties:
-        mail.smtp.auth: false
-        mail.smtp.starttls.enable: false
-        mail.from: test@gmail.com
+  application:
+    name: notification-service
+  config:
+    import: optional:configserver:http://localhost:8888

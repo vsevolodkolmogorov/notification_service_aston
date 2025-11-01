@@ -1,5 +1,6 @@
 package ru.astondevs.notificationserviceaston.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.astondevs.notificationserviceaston.dto.UserEventDto;
@@ -18,7 +19,8 @@ public class NotificationService {
         }
     }
 
-    private void sendRegistrationMail(UserEventDto user) {
+    @CircuitBreaker(name = "mailCB", fallbackMethod = "fallbackSendMail")
+    public void sendRegistrationMail(UserEventDto user) {
         mailService.sendSimpleMail(
                 user.getEmail(),
                 "Регистрация аккаунта, " + user.getName(),
@@ -26,7 +28,8 @@ public class NotificationService {
         );
     }
 
-    private void sendDeletionMail(UserEventDto user) {
+    @CircuitBreaker(name = "mailCB", fallbackMethod = "fallbackSendMail")
+    public void sendDeletionMail(UserEventDto user) {
         mailService.sendSimpleMail(
                 user.getEmail(),
                 "Удаление аккаунта, " + user.getName(),
@@ -34,4 +37,7 @@ public class NotificationService {
         );
     }
 
+    public void fallbackSendMail(UserEventDto user, Throwable t) {
+        System.out.println("Не удалось отправить письмо пользователю " + user.getEmail() + ". Причина: " + t.getMessage());
+    }
 }

@@ -1,15 +1,21 @@
 package ru.astondevs.notificationserviceaston.service;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.astondevs.notificationserviceaston.common.CircuitBreaker;
+import ru.astondevs.notificationserviceaston.common.CircuitBreakerRegistry;
 import ru.astondevs.notificationserviceaston.dto.UserEventDto;
 
 
 @Service
-@RequiredArgsConstructor
 public class NotificationService {
+
     private final MailService mailService;
+    private final CircuitBreaker breaker;
+
+    public NotificationService(MailService mailService, CircuitBreakerRegistry registry) {
+        this.mailService = mailService;
+        this.breaker = registry.getBreaker("mailCB");
+    }
 
     public void processUserEvent(UserEventDto eventDto) {
         switch (eventDto.getEventType()) {
@@ -19,22 +25,35 @@ public class NotificationService {
         }
     }
 
-    @CircuitBreaker(name = "mailCB", fallbackMethod = "fallbackSendMail")
     public void sendRegistrationMail(UserEventDto user) {
-        mailService.sendSimpleMail(
+        executeWithBreaker(user, () -> mailService.sendSimpleMail(
                 user.getEmail(),
                 "Регистрация аккаунта, " + user.getName(),
                 "Здравствуйте, " + user.getName() + "! Ваш аккаунт успешно создан."
-        );
+        ));
     }
 
-    @CircuitBreaker(name = "mailCB", fallbackMethod = "fallbackSendMail")
     public void sendDeletionMail(UserEventDto user) {
-        mailService.sendSimpleMail(
+        executeWithBreaker(user, () -> mailService.sendSimpleMail(
                 user.getEmail(),
                 "Удаление аккаунта, " + user.getName(),
                 "Здравствуйте, " + user.getName() + "! Ваш аккаунт был удалён."
-        );
+        ));
+    }
+
+    private void executeWithBreaker(UserEventDto user, Runnable action) {
+        if (!breaker.allowRequest()) {
+            fallbackSendMail(user, new RuntimeException("Circuit is OPEN"));
+            return;
+        }
+
+        try {
+            action.run();
+            breaker.recordSuccess();
+        } catch (Exception e) {
+            breaker.recordFailure();
+            fallbackSendMail(user, e);
+        }
     }
 
     public void fallbackSendMail(UserEventDto user, Throwable t) {

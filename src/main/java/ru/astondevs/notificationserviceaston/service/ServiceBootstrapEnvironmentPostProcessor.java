@@ -19,7 +19,7 @@ public class ServiceBootstrapEnvironmentPostProcessor implements EnvironmentPost
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        String configUrl = environment.getProperty("config.server.url", "http://localhost:8888");
+        String configUrl = environment.getProperty("config.server.url", "http://config-service:8888");
         String appName = environment.getProperty("spring.application.name", "notification-service");
         String profiles = environment.getProperty("spring.profiles.active", "default");
 

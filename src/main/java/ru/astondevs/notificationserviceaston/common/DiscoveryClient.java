@@ -32,7 +32,7 @@ public class DiscoveryClient {
 
     @PostConstruct
     public void register() {
-        instanceUrl = "http://localhost:" + port;
+        instanceUrl = "http://" + serviceName + ":" + port;
         Map<String, Object> body = new HashMap<>();
         body.put("serviceName", serviceName);
         body.put("instanceId", instanceId);

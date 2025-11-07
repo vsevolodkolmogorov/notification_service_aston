@@ -5,4 +5,4 @@ spring:
     active: default
 config:
   server:
-    url: http://localhost:8888
+    url: http://config-service:8888
